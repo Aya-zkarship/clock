@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clock | Stopwatch | Timer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      transition: background 0.5s, color 0.5s;
+    }
+
+    /* Light Mode */
+    body.light {
+      background: linear-gradient(135deg, #f8f9fa, #dfe6e9);
+      color: #222;
+    }
+
+    body.light .container {
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Dark Mode */
+    body.dark {
+      background: linear-gradient(135deg, #2c3e50, #000000);
+      color: white;
+    }
+
+    body.dark .container {
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .container {
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+      width: 350px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    #themeToggle {
+      background: #444;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+
+    #themeToggle:hover {
+      background: #666;
+    }
+
+    .tabs {
+      margin-bottom: 15px;
+    }
+
+    .tabs button {
+      background: #444;
+      color: white;
+      border: none;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .tabs button:hover {
+      background: #666;
+    }
+
+    .tab {
+      display: none;
+    }
+
+    .tab.active {
+      display: block;
+    }
+
+    #clockDisplay, #stopwatchDisplay, #timerDisplay {
+      font-size: 2rem;
+      margin: 15px 0;
+      font-weight: bold;
+    }
+
+    .buttons button {
+      background: #222;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .buttons button:hover {
+      background: #555;
+    }
+
+    input {
+      padding: 8px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⏰ Clock | Stopwatch | Timer</h1>
+
+    <!-- Dark/Light Mode Toggle -->
+    <button id="themeToggle">🌙 Dark Mode</button>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button onclick="showTab('clock')">Clock</button>
+      <button onclick="showTab('stopwatch')">Stopwatch</button>
+      <button onclick="showTab('timer')">Timer</button>
+    </div>
+
+    <!-- Clock -->
+    <div id="clock" class="tab active">
+      <h2>Digital Clock</h2>
+      <div id="clockDisplay">00:00:00</div>
+    </div>
+
+    <!-- Stopwatch -->
+    <div id="stopwatch" class="tab">
+      <h2>Stopwatch</h2>
+      <div id="stopwatchDisplay">00:00:00</div>
+      <div class="buttons">
+        <button onclick="startStopwatch()">Start</button>
+        <button onclick="stopStopwatch()">Stop</button>
+        <button onclick="resetStopwatch()">Reset</button>
+      </div>
+    </div>
+
+    <!-- Timer -->
+    <div id="timer" class="tab">
+      <h2>Timer</h2>
+      <input type="number" id="timerInput" placeholder="Enter seconds">
+      <div id="timerDisplay">00:00</div>
+      <div class="buttons">
+        <button onclick="startTimer()">Start</button>
+        <button onclick="stopTimer()">Stop</button>
+        <button onclick="resetTimer()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== TAB SWITCH ==========
+    function showTab(tabId) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    // ========== CLOCK ==========
+    function updateClock() {
+      let now = new Date();
+      let hours = String(now.getHours()).padStart(2, '0');
+      let minutes = String(now.getMinutes()).padStart(2, '0');
+      let seconds = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('clockDisplay').innerText = `${hours}:${minutes}:${seconds}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ========== STOPWATCH ==========
+    let stopwatchInterval;
+    let stopwatchSeconds = 0;
+
+    function updateStopwatch() {
+      let hrs = String(Math.floor(stopwatchSeconds / 3600)).padStart(2, '0');
+      let mins = String(Math.floor((stopwatchSeconds % 3600) / 60)).padStart(2, '0');
+      let secs = String(stopwatchSeconds % 60).padStart(2, '0');
+      document.getElementById('stopwatchDisplay').innerText = `${hrs}:${mins}:${secs}`;
+    }
+
+    function startStopwatch() {
+      if (!stopwatchInterval) {
+        stopwatchInterval = setInterval(() => {
+          stopwatchSeconds++;
+          updateStopwatch();
+        }, 1000);
+      }
+    }
+
+    function stopStopwatch() {
+      clearInterval(stopwatchInterval);
+      stopwatchInterval = null;
+    }
+
+    function resetStopwatch() {
+      stopStopwatch();
+      stopwatchSeconds = 0;
+      updateStopwatch();
+    }
+
+    // ========== TIMER ==========
+    let timerInterval;
+    let timerTime = 0;
+
+    function updateTimer() {
+      let mins = String(Math.floor(timerTime / 60)).padStart(2, '0');
+      let secs = String(timerTime % 60).padStart(2, '0');
+      document.getElementById('timerDisplay').innerText = `${mins}:${secs}`;
+    }
+
+    function startTimer() {
+      let input = document.getElementById('timerInput').value;
+      if (input && timerTime === 0) {
+        timerTime = parseInt(input);
+        updateTimer();
+      }
+      if (!timerInterval && timerTime > 0) {
+        timerInterval = setInterval(() => {
+          if (timerTime > 0) {
+            timerTime--;
+            updateTimer();
+          } else {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            alert("⏰ Time's up!");
+          }
+        }, 1000);
+      }
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function resetTimer() {
+      stopTimer();
+      timerTime = 0;
+      document.getElementById('timerDisplay').innerText = "00:00";
+      document.getElementById('timerInput').value = "";
+    }
+
+    // ========== DARK/LIGHT MODE ==========
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    // Default theme = light
+    body.classList.add('light');
+
+    themeToggle.addEventListener('click', () => {
+      if (body.classList.contains('light')) {
+        body.classList.replace('light', 'dark');
+        themeToggle.textContent = "☀️ Light Mode";
+      } else {
+        body.classList.replace('dark', 'light');
+        themeToggle.textContent = "🌙 Dark Mode";
+      }
+    });
+  </script>
+</body>
+</html>
